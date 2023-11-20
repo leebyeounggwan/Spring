@@ -11,6 +11,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Table(name = "orders")
+@Entity
 public class OrderEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
