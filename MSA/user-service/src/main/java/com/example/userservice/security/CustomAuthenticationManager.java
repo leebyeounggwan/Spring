@@ -1,5 +1,6 @@
 package com.example.userservice.security;
 
+import com.example.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.ClassFilter;
@@ -18,11 +19,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomAuthenticationManager implements AuthenticationManager {
-    private final CustomUserDetailService customUserDetailService;
+    private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        UserDetails userDetails = customUserDetailService.loadUserByUsername(authentication.getName());
+        UserDetails userDetails = userService.loadUserByUsername(authentication.getName());
         if (userDetails == null) {
             throw new BadCredentialsException("User not found");
         }
@@ -31,6 +32,16 @@ public class CustomAuthenticationManager implements AuthenticationManager {
         }
         return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
     }
-
+//    @Override
+//    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+//        UserDetails userDetails = customUserDetailService.loadUserByUsername(authentication.getName());
+//        if (userDetails == null) {
+//            throw new BadCredentialsException("User not found");
+//        }
+//        if (!passwordEncoder.matches(authentication.getCredentials().toString(), userDetails.getPassword())) {
+//            throw new BadCredentialsException("Wrong password");
+//        }
+//        return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
+//    }
 
 }

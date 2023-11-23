@@ -22,8 +22,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @RequiredArgsConstructor
 public class WebSecurity{
     private final CustomAuthenticationManager customAuthenticationManager;
-    private final UserService userFindPort;
-    private final Environment environment;
+    private final UserService userService;
+    private final Environment env;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -49,7 +49,7 @@ public class WebSecurity{
     }
 
     private AuthenticationFilter getAuthenticationFilter() {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter();
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(userService, env);
         authenticationFilter.setAuthenticationManager(customAuthenticationManager);
         return authenticationFilter;
     }
