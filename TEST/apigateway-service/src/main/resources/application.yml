@@ -21,12 +21,12 @@ spring:
             postLogger: true
       routes:
           - id: first-service
-            uri: http://localhost:8001/ # ??(predicates)? ?? uri? ??
-            predicates: # ??(???? ??? url)
+            uri: http://localhost:8001/ # 요청(predicates)이 들어오면 이 uri로 보내라
+            predicates: # 조건(사용자가 요청한 url)
               - Path=/first-service/**
-            filters: # ??? ?? ??
-#              - AddRequestHeader=first-service-header, first-service-header2 # ??? ?? ??
-#              - AddResponseHeader=first-service-response-header, first-service-response-header2 # ??? ?? ??
+            filters: # 요청에 대한 처리
+#              - AddRequestHeader=first-service-header, first-service-header2 # 요청에 헤더 추가
+#              - AddResponseHeader=first-service-response-header, first-service-response-header2 # 응답에 헤더 추가
               - CustomFilter
           - id: second-service
             uri: http://localhost:8002/
@@ -35,6 +35,10 @@ spring:
             filters:
 #                - AddRequestHeader=second-service-header, second-service-header2
 #                - AddResponseHeader=second-service-response-header, second-service-response-header2
-               - CustomFilter
-
+               - name: CustomFilter
+               - name: LoggingFilter
+                 args:
+                   baseMessage: Hi, there.
+                   preLogger: true
+                   postLogger: true
 
