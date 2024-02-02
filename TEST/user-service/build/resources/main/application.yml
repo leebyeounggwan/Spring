@@ -35,3 +35,8 @@ greeting:
 logging:
   level:
     org.hibernate.SQL: DEBUG
+
+token:
+  secret: mySecret
+  expiration:
+    time: 86400000
