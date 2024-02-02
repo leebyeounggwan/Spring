@@ -24,6 +24,14 @@ spring:
             uri: lb://USER-SERVICE
             predicates:
               - Path=/user-service/**
+          - id: catalog-service
+            uri: lb://CATALOG-SERVICE
+            predicates:
+              - Path=/catalog-service/**
+          - id: order-service
+            uri: lb://ORDER-SERVICE
+            predicates:
+              - Path=/order-service/**
           - id: first-service
             uri: lb://MY-FIRST-SERVICE # 요청(predicates)이 들어오면 이 uri로 보내라
             predicates: # 조건(사용자가 요청한 url)
