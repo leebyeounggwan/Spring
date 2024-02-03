@@ -28,8 +28,10 @@ import java.util.Objects;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final UserRepository userRepository;
     private final Environment environment;
+    private final AuthenticationManager authenticationManager;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, Environment environment) {
+        this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.environment = environment;
     }
@@ -41,8 +43,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             RequestLogin creds = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
             System.out.println("creds.getEmail() = " + creds.getEmail());
             System.out.println("creds.getPwd() = " + creds.getPwd());
-            return getAuthenticationManager() // getAuthenticationManager: 인증을 처리하는데 사용되는 AuthenticationManager 객체를 반환
-                    .authenticate( // authenticate: 인증을 처리하는 메소드
+            return authenticationManager.authenticate( // authenticate: 인증을 처리하는 메소드
                     new UsernamePasswordAuthenticationToken( // UsernamePasswordAuthenticationToken: 인증 요청에 사용되는 토큰
                             creds.getEmail(),
                             creds.getPwd(),
@@ -55,7 +56,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+    protected void successfulAuthentication(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
         String username = authResult.getName();
         UserEntity user = userRepository.findUserByEmail(username);
@@ -63,10 +66,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             throw new UsernameNotFoundException(username);
         }
         log.debug("user id {}", user.getUserId());
-
+        log.info("token.secret= {}",environment.getProperty("token.secret"));
         String token = Jwts.builder()
                 .setSubject(user.getUserId())
-                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(Objects.requireNonNull(environment.getProperty("token.expiration.time")))))
+                .setExpiration(new Date(System.currentTimeMillis() +
+                        Long.parseLong(Objects.requireNonNull(environment.getProperty("token.expiration.time")))))
                 .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
                 .compact();
         response.addHeader("token", token);
