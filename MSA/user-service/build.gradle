@@ -49,6 +49,13 @@ dependencies {
     implementation 'com.sun.xml.bind:jaxb-core:4.0.2'
     // javax.xml.bind
     implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
+    // springcloud
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    // bootstrap
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 }
 
 dependencyManagement {

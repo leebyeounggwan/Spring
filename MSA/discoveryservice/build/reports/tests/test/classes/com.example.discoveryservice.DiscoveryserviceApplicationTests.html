@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - DiscoveryserviceApplicationTests</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>DiscoveryserviceApplicationTests</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/com.example.discoveryservice.html">com.example.discoveryservice</a> &gt; DiscoveryserviceApplicationTests</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">1</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.989s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">contextLoads()</td>
+<td class="success">0.989s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>15:44:44.016 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.discoveryservice.DiscoveryserviceApplicationTests]: DiscoveryserviceApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:44:44.122 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.discoveryservice.DiscoveryserviceApplication for test class com.example.discoveryservice.DiscoveryserviceApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.1.8)
+
+2024-02-04T15:44:44.991+09:00  INFO 20636 --- [    Test worker] c.e.d.DiscoveryserviceApplicationTests   : Starting DiscoveryserviceApplicationTests using Java 17.0.10 with PID 20636 (started by Bottle_Coffin in C:\Users\Bottle_Coffin\Desktop\Spring\MSA\discoveryservice)
+2024-02-04T15:44:44.993+09:00  INFO 20636 --- [    Test worker] c.e.d.DiscoveryserviceApplicationTests   : No active profile set, falling back to 1 default profile: &quot;default&quot;
+2024-02-04T15:44:46.357+09:00  INFO 20636 --- [    Test worker] o.s.cloud.context.scope.GenericScope     : BeanFactory id=2769867f-4fab-3518-8697-f3753cb999b5
+2024-02-04T15:44:48.461+09:00  WARN 20636 --- [    Test worker] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2024-02-04T15:44:48.787+09:00  INFO 20636 --- [    Test worker] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2024-02-04T15:44:48.834+09:00  INFO 20636 --- [    Test worker] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2024-02-04T15:44:48.836+09:00  INFO 20636 --- [    Test worker] com.netflix.discovery.DiscoveryClient    : Client configured to neither register nor query for data.
+2024-02-04T15:44:48.851+09:00  INFO 20636 --- [    Test worker] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1707029088849 with initial instances count: 0
+2024-02-04T15:44:48.899+09:00  INFO 20636 --- [    Test worker] c.n.eureka.DefaultEurekaServerContext    : Initializing ...
+2024-02-04T15:44:48.902+09:00  INFO 20636 --- [    Test worker] c.n.eureka.cluster.PeerEurekaNodes       : Adding new peer nodes [http://localhost:8761/eureka/]
+2024-02-04T15:44:49.076+09:00  INFO 20636 --- [    Test worker] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON encoding codec LegacyJacksonJson
+2024-02-04T15:44:49.077+09:00  INFO 20636 --- [    Test worker] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON decoding codec LegacyJacksonJson
+2024-02-04T15:44:49.077+09:00  INFO 20636 --- [    Test worker] c.n.d.provider.DiscoveryJerseyProvider   : Using XML encoding codec XStreamXml
+2024-02-04T15:44:49.077+09:00  INFO 20636 --- [    Test worker] c.n.d.provider.DiscoveryJerseyProvider   : Using XML decoding codec XStreamXml
+2024-02-04T15:44:49.212+09:00  INFO 20636 --- [    Test worker] c.n.eureka.cluster.PeerEurekaNodes       : Replica node URL:  http://localhost:8761/eureka/
+2024-02-04T15:44:49.219+09:00  INFO 20636 --- [    Test worker] c.n.e.registry.AbstractInstanceRegistry  : Finished initializing remote region registries. All known remote regions: []
+2024-02-04T15:44:49.220+09:00  INFO 20636 --- [    Test worker] c.n.eureka.DefaultEurekaServerContext    : Initialized
+2024-02-04T15:44:49.375+09:00  INFO 20636 --- [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2024-02-04T15:44:49.418+09:00  INFO 20636 --- [    Test worker] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application DISCOVERYSERVICE with eureka with status UP
+2024-02-04T15:44:49.434+09:00  INFO 20636 --- [      Thread-12] o.s.c.n.e.server.EurekaServerBootstrap   : isAws returned false
+2024-02-04T15:44:49.436+09:00  INFO 20636 --- [      Thread-12] o.s.c.n.e.server.EurekaServerBootstrap   : Initialized server context
+2024-02-04T15:44:49.436+09:00  INFO 20636 --- [      Thread-12] c.n.e.r.PeerAwareInstanceRegistryImpl    : Got 1 instances from neighboring DS node
+2024-02-04T15:44:49.436+09:00  INFO 20636 --- [      Thread-12] c.n.e.r.PeerAwareInstanceRegistryImpl    : Renew threshold is: 1
+2024-02-04T15:44:49.436+09:00  INFO 20636 --- [      Thread-12] c.n.e.r.PeerAwareInstanceRegistryImpl    : Changing status to UP
+2024-02-04T15:44:49.439+09:00  INFO 20636 --- [    Test worker] c.e.d.DiscoveryserviceApplicationTests   : Started DiscoveryserviceApplicationTests in 5.134 seconds (process running for 6.719)
+2024-02-04T15:44:49.446+09:00  INFO 20636 --- [      Thread-12] e.s.EurekaServerInitializerConfiguration : Started Eureka Server
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.5</a> at 2024. 2. 4. 오후 3:44:50</p>
+</div>
+</div>
+</body>
+</html>

@@ -35,8 +35,12 @@ greeting:
 logging:
   level:
     org.hibernate.SQL: DEBUG
-
-token:
-  secret: mySecret
-  expiration:
-    time: 86400000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, info
+                  # refresh: 설정 변경을 즉시 반영 -> POST /actuator/refresh
+                  # health: 애플리케이션 상태
+                  # info: 애플리케이션 정보
+                  # beans: 등록 된 빈 정보

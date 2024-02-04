@@ -30,7 +30,8 @@ public class WebSecurity {
                 .requestMatchers(new AntPathRequestMatcher( "/css/**"))
                 .requestMatchers(new AntPathRequestMatcher( "/js/**"))
                 .requestMatchers(new AntPathRequestMatcher( "/img/**"))
-                .requestMatchers(new AntPathRequestMatcher( "/lib/**"));
+                .requestMatchers(new AntPathRequestMatcher( "/lib/**"))
+                .requestMatchers(new AntPathRequestMatcher( "/actuator/**"));
     }
 
     @Bean
@@ -39,6 +40,8 @@ public class WebSecurity {
             .headers(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(authorize ->
+//                authorize.requestMatchers(new MvcRequestMatcher(introspector, "/**"))
+//                        .authenticated())
                 authorize.requestMatchers(new MvcRequestMatcher(introspector, "/**")).permitAll()
                         .anyRequest()
                         .authenticated())
