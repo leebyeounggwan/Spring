@@ -1,10 +1,8 @@
 package com.example.orderservice.jpa;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public interface OrderRepository extends CrudRepository<OrderEntity, Long> {
+public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     OrderEntity findByOrderId(String orderId);
     Iterable<OrderEntity> findByUserId(String userId);
 }

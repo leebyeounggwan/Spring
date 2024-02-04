@@ -1,28 +1,35 @@
 package com.example.userservice.jpa;
 
+import com.example.userservice.dto.UserDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name="users")
+@Table(name = "users")
+@ToString
+@NoArgsConstructor
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 50, unique = true)
     private String email;
-
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String name;
-
     @Column(nullable = false, unique = true)
     private String userId;
-
-    @Column(nullable = false, length = 150, unique = true)
+    @Column(nullable = false, unique = true)
     private String encryptedPwd;
 
+    public UserEntity(UserDto dto) {
+        this.email = dto.getEmail();
+        this.name = dto.getName();
+        this.userId = dto.getUserId();
+    }
 }

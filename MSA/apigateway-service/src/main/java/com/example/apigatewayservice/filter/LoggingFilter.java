@@ -30,17 +30,16 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
             if (config.isPreLogger()) {
                 log.info("Logging PRE filter: request id -> {}", request.getId());
             }
-            // Custom Post Filter
+
             return chain.filter(exchange).then(Mono.fromRunnable(() -> {
                 if (config.isPostLogger()) {
-                    log.info("Logging POST Filter: response code -> {}", response.getStatusCode());
+                    log.info("Logging POST filter: response code -> {}", response.getStatusCode());
                 }
-
             }));
-        }, Ordered.LOWEST_PRECEDENCE);
-
+        }, Ordered.HIGHEST_PRECEDENCE); // 필터의 우선순위를 지정
         return filter;
     }
+
     @Data
     public static class Config {
         private String baseMessage;
