@@ -5,10 +5,17 @@ server:
 spring:
   application:
     name: config-service
+#  profiles:
+#    active: native
   cloud:
     config:
       server:
+#        native:
+#          search-locations: file://${user.home}/Desktop/git-local-repo
         git:
-          uri: file:///Users/Bottle_Coffin/Desktop/git-local-repo
+#          uri: file:///Users/Bottle_Coffin/Desktop/git-local-repo
+          uri: https://github.com/leebyeounggwan/spring-cloud-config.git
           default-label: main
-#
+#         private repository인 경우
+#         username: [username]
+#         password: [password]
