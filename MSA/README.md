@@ -307,3 +307,63 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
         - successfulAuthentication()
 
 # Spring Cloud Config
+
+: 분산 시스템에서 서버 클라이언트 구성에 필요한 설정 정보(*.yml, *.properties)를 외부 시스템에서 관리 → 각 서비스를 다시 빌드하지 않고, 수정사항 적용 가능
+
+Spring Cloud Config Server 
+
+- 우선순위
+
+`application.yml` → `application-name.yml` → `application-name-<profile>.yml`
+
+```yaml
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///Users/Bottle_Coffin/Desktop/git-local-repo
+          default-label: main
+```
+
+```java
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServiceApplication.class, args);
+    }
+
+}
+```
+
+http://127.0.0.1:8888/ecommerce/default
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/d9a7c5a5-25f7-431e-8232-b546062e54db/Untitled.png)
+
+- 각각의 microservice에 bootsrap.yml을 등록하여 외부의 configuration 정보 파일을 등록
+
+<aside>
+💡 부트스트랩 컨텍스트는 애플리케이션의 주 설정 파일(**`application.yml`** 또는 **`application.properties`**)보다 먼저 외부 설정 소스에서 설정을 로드
+
+</aside>
+
+### ** Config Server에서 설정 정보가 변경 되었을 때 값을 가져오는 방법
+
+1. 서버 재 기동 → config server를 사용하는 의미가 없다.
+2. Actuator refresh → Actuator의 refresh 옵션을 사용
+    - `actuator` dependency 추가
+    - `GET` /   `localhost:10779/actuator/refresh`
+    - `ecommerce.yml` 설정 정보 수정
+    - postman → `POST` /  `localhost:10779/actuator/refresh`
+    - `GET` /   `localhost:10779/health_check`
+        
+        → 변경 된 내용이 반영 된 것을 확인
+        
+3. Spring cloud bus →
