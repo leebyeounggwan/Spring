@@ -1,6 +1,6 @@
 package com.example.userservice.security;
 
-import com.example.userservice.service.UserService;
+import com.example.userservice.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,14 +15,13 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
-@Configuration
 @EnableWebSecurity
+@Configuration
 @RequiredArgsConstructor
-public class WebSecurity{
+public class WebSecurity {
     private final CustomAuthenticationManager customAuthenticationManager;
-    private final UserService userService;
-    private final Environment env;
-
+    private final UserRepository userRepository;
+    private final Environment environment;
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().
@@ -31,25 +30,28 @@ public class WebSecurity{
                 .requestMatchers(new AntPathRequestMatcher( "/css/**"))
                 .requestMatchers(new AntPathRequestMatcher( "/js/**"))
                 .requestMatchers(new AntPathRequestMatcher( "/img/**"))
-                .requestMatchers(new AntPathRequestMatcher( "/lib/**"));
+                .requestMatchers(new AntPathRequestMatcher( "/lib/**"))
+                .requestMatchers(new AntPathRequestMatcher( "/actuator/**"));
     }
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable)
+            .headers(AbstractHttpConfigurer::disable);
+
         http.authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers(new MvcRequestMatcher(introspector, "/**")).permitAll()
-                                .anyRequest()
-                                .authenticated())
+//                authorize.requestMatchers(new MvcRequestMatcher(introspector, "/**"))
+//                        .authenticated())
+                authorize.requestMatchers(new MvcRequestMatcher(introspector, "/**")).permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .addFilter(getAuthenticationFilter())
                 .httpBasic(Customizer.withDefaults());
+
         return http.build();
     }
 
     private AuthenticationFilter getAuthenticationFilter() {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(customAuthenticationManager ,userService, env);
-        authenticationFilter.setAuthenticationManager(customAuthenticationManager);
-        return authenticationFilter;
+        return new AuthenticationFilter(customAuthenticationManager, userRepository, environment);
     }
-
 }

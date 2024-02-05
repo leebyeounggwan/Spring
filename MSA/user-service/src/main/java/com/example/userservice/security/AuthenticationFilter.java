@@ -1,22 +1,22 @@
 package com.example.userservice.security;
 
-import com.example.userservice.dto.UserDto;
-import com.example.userservice.service.UserService;
+import com.example.userservice.jpa.UserEntity;
+import com.example.userservice.jpa.UserRepository;
 import com.example.userservice.vo.RequestLogin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -25,26 +25,29 @@ import java.util.Date;
 import java.util.Objects;
 
 @Slf4j
-@RequiredArgsConstructor
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private final CustomAuthenticationManager customAuthenticationManager;
-    private final UserService userService;
-    private final Environment env;
+    private final UserRepository userRepository;
+    private final Environment environment;
+    private final AuthenticationManager authenticationManager;
 
+    public AuthenticationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, Environment environment) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.environment = environment;
+    }
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request,
+                                                HttpServletResponse response) throws AuthenticationException {
+
         try {
             RequestLogin creds = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
-            UserDetails build = User.builder()
-                    .username(creds.getEmail())
-                    .password(creds.getPwd()).build();
-
-            //setAuthenticationManager(customAuthenticationManager);
-            return getAuthenticationManager().authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            build.getUsername(),
-                            build.getPassword(),
-                            new ArrayList<>()
+            System.out.println("creds.getEmail() = " + creds.getEmail());
+            System.out.println("creds.getPwd() = " + creds.getPwd());
+            return authenticationManager.authenticate( // authenticate: 인증을 처리하는 메소드
+                    new UsernamePasswordAuthenticationToken( // UsernamePasswordAuthenticationToken: 인증 요청에 사용되는 토큰
+                            creds.getEmail(),
+                            creds.getPwd(),
+                            new ArrayList<>() // 인증된 사용자의 권한
                     )
             );
         } catch (IOException e) {
@@ -56,19 +59,21 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult) {
-
-        String principal = (String) authResult.getPrincipal();
-        UserDto userDetails = userService.getUserDetailsByEmail(principal);
-
+                                            Authentication authResult) throws IOException, ServletException {
+        String username = authResult.getName();
+        UserEntity user = userRepository.findUserByEmail(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+        log.debug("user id {}", user.getUserId());
+        log.info("token.secret= {}",environment.getProperty("token.secret"));
         String token = Jwts.builder()
-                .setSubject(userDetails.getUserId())
-                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
+                .setSubject(user.getUserId())
                 .setExpiration(new Date(System.currentTimeMillis() +
-                        Long.parseLong(Objects.requireNonNull(env.getProperty("token.expiration_time")))))
+                        Long.parseLong(Objects.requireNonNull(environment.getProperty("token.expiration.time")))))
+                .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
                 .compact();
-
         response.addHeader("token", token);
-        response.addHeader("userId", userDetails.getUserId());
+        response.addHeader("userId", user.getUserId());
     }
 }

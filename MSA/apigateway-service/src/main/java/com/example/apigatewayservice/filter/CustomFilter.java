@@ -5,6 +5,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -15,24 +16,23 @@ public class CustomFilter extends AbstractGatewayFilterFactory<CustomFilter.Conf
         super(Config.class);
     }
 
+    public static class Config {
+
+    }
 
     @Override
     public GatewayFilter apply(Config config) {
         // Custom Pre Filter
-        return (exchange, chain) -> {
+        return ((exchange, chain) -> { // exchange: 요청, 응답 정보를 가지고 있음 / chain: 다음 필터를 연결하는 역할
             ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
 
             log.info("Custom PRE filter: request id -> {}", request.getId());
 
             // Custom Post Filter
-            return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+            return chain.filter(exchange).then(Mono.fromRunnable(() -> { // Mono: 비동기적으로 작업을 수행할 수 있도록 도와주는 객체
                 log.info("Custom POST filter: response code -> {}", response.getStatusCode());
             }));
-        };
-    }
-
-    public static class Config {
-        // Put the configuration properties
+        });
     }
 }

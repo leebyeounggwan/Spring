@@ -3,39 +3,47 @@ package com.example.orderservice.service;
 import com.example.orderservice.dto.OrderDto;
 import com.example.orderservice.jpa.OrderEntity;
 import com.example.orderservice.jpa.OrderRepository;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService{
-    private final OrderRepository orderRepository;
+    Environment env;
+    OrderRepository orderRepository;
+
+    @Autowired
+    public OrderServiceImpl(Environment env, OrderRepository orderRepository) {
+        this.env = env;
+        this.orderRepository = orderRepository;
+    }
 
     @Override
     public OrderDto createOrder(OrderDto orderDto) {
         orderDto.setOrderId(UUID.randomUUID().toString());
         orderDto.setTotalPrice(orderDto.getQty() * orderDto.getUnitPrice());
-        ModelMapper mapper = new ModelMapper();
 
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        OrderEntity orderEntity = mapper.map(orderDto, OrderEntity.class);
+        OrderEntity orderEntity = new OrderEntity(orderDto);
+
         orderRepository.save(orderEntity);
 
-        return mapper.map(orderEntity, OrderDto.class);
+        return orderDto;
     }
 
     @Override
     public OrderDto getOrderByOrderId(String orderId) {
         OrderEntity orderEntity = orderRepository.findByOrderId(orderId);
-        return new ModelMapper().map(orderEntity, OrderDto.class);
+
+        return new OrderDto(orderEntity);
     }
 
     @Override
     public Iterable<OrderEntity> getOrdersByUserId(String userId) {
+
         return orderRepository.findByUserId(userId);
     }
 }

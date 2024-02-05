@@ -1,7 +1,8 @@
 package com.example.catalogservice.jpa;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CatalogRepository extends CrudRepository<CatalogEntity, Long> {
+public interface CatalogRepository extends JpaRepository<CatalogEntity, Long> {
     CatalogEntity findByProductId(String productId);
+
 }
