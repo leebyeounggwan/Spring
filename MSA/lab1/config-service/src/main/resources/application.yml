@@ -5,13 +5,14 @@ server:
 spring:
   application:
     name: config-service
-#  profiles:
-#    active: native
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
   cloud:
     config:
       server:
-#        native:
-#          search-locations: file://${user.home}/Desktop/git-local-repo
         git:
 #          uri: file:///Users/Bottle_Coffin/Desktop/git-local-repo
           uri: https://github.com/leebyeounggwan/spring-cloud-config.git
@@ -19,3 +20,9 @@ spring:
 #         private repository인 경우
 #         username: [username]
 #         password: [password]
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, bus-refresh
