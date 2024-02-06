@@ -1,5 +1,10 @@
 # MSA
 
+- 전체 애플리케이션 개요
+    - Catalog-Service : 상품조회
+    - User-Service : 사용자조회, 주문 확인
+    - Order-Service : 상품 주문, 주문 조회, 수량 업데이트
+
 # Eureka Server
 
 MSA에서 서비스 간의 통신과 발견을 관리하는데 사용 
@@ -293,19 +298,6 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
 
 1) apigateway에 Eureka Client dependency 설정 /  .yml 추가
 
-- 전체 애플리케이션 개요
-    - Catalog-Service : 상품조회
-    - User-Service : 사용자조회, 주문 확인
-    - Order-Service : 상품 주문, 주문 조회, 수량 업데이트
-
-- Spring Security
-    - AuthenticationFilter
-        - attemptAuthentication()
-            - UsernamePasswordAuthenticationToken
-                - UserDetailService
-                    - loadUserByUsername() → UserRepository.findByEmail()
-        - successfulAuthentication()
-
 # Spring Cloud Config
 
 : 분산 시스템에서 서버 클라이언트 구성에 필요한 설정 정보(*.yml, *.properties)를 외부 시스템에서 관리 → 각 서비스를 다시 빌드하지 않고, 수정사항 적용 가능
@@ -358,12 +350,271 @@ http://127.0.0.1:8888/ecommerce/default
 
 1. 서버 재 기동 → config server를 사용하는 의미가 없다.
 2. Actuator refresh → Actuator의 refresh 옵션을 사용
+    
+    > **Actuator** 
+     - Application 상태, 모니터링
+     - Metric 수집을 위한 Http End Point 제공
+    > 
     - `actuator` dependency 추가
     - `GET` /   `localhost:10779/actuator/refresh`
     - `ecommerce.yml` 설정 정보 수정
     - postman → `POST` /  `localhost:10779/actuator/refresh`
     - `GET` /   `localhost:10779/health_check`
         
-        → 변경 된 내용이 반영 된 것을 확인
+        → 변경된 설정 정보를 사용하는 서비스에 대해 각각 refresh 해야 한다.
         
-3. Spring cloud bus →
+3. Spring cloud bus → AMQP을 통해 각각의 MS에 변경사항을 갱신(Push)
+    
+    > Spring Cloud Bus
+     - 분산 시스템의 노드(마이크로서비스)를 경량 메시지 브로커(Rabbit MQ)와 연결
+     - 각각의 시스템 상태 및 구성에 대한 변경 사항을 연결된 노드에 전달
+    > 
+    
+    <aside>
+    💡 AMQP (Advanced Message Queuing Protocol)
+    : 메시지 지향 미들웨어를 위한 개방형 표준 응용 계층 프로토콜
+    
+    - 비동기 메시지 전송 및 통신
+    - 주로 메시지 브로커를 통해 메시지를 전달하고 관리
+    - 분산 시스템 간의 효율적이고 안정적인 통신을 지원
+    
+    1. 메시지 큐: AMQP는 메시지 큐 시스템을 구축하고 관리하는 데 사용.
+    메시지 큐는 메시지를 보내고 받는 시스템 간의 통신을 지원하며, 메시지의 안정적인 전송과 처리를 보장
+    2. 프로듀서(Producer): 메시지를 생성하고 메시지 큐로 전송하는 역할을 하는 시스템 또는 응용 프로그램
+    3. 컨슈머(Consumer): 메시지 큐에서 메시지를 소비하고 처리하는 역할을 하는 시스템 또는 응용 프로그램
+    4. 브로커(Broker): 메시지의 전송 및 라우팅을 관리하는 중앙 시스템 또는 서버 AMQP 브로커는 메시지를 수신하고 발신하여 메시지 큐 간의 통신을 중계
+    대표적인 AMQP 브로커로는 `RabbitMQ`와 `Apache ActiveMQ`
+    5. 메시지 속성: AMQP 메시지는 헤더, 바디 및 속성과 같은 여러 부분으로 구성
+    속성은 메시지에 대한 추가 정보를 제공하며, 메시지를 라우팅하고 필터링하는 데 사용
+    6. 메시지 라우팅: AMQP는 메시지를 특정 큐로 라우팅하거나 토픽에 따라 메시지를 발행하고 구독할 수 있도록 지원. 메시지를 특정 컨슈머에게 전달하거나 여러 컨슈머에게 동시에 전달
+    </aside>
+    
+    <aside>
+    💡 Kafka
+    : 오픈 소스 메시지 브로커 프로젝트
+    
+    - 분산형 스트리밍 플랫폼
+    - 대용량 데이터 처리 가능한 메시징 시스템
+    
+    1. **분산 시스템**: Kafka는 여러 대의 브로커(서버)로 구성된 분산 시스템
+    2. **토픽(Topic)**: 데이터 스트림을 정리하고 분류하기 위해 Kafka는 토픽을 사용
+     토픽은 유사한 종류의 데이터를 그룹화하고 이를 여러 컨슈머에게 공급
+    3. **프로듀서(Producer)**: 데이터를 Kafka 토픽으로 전송하는 역할을 하는 시스템 
+    프로듀서는 데이터를 생성하고 Kafka 클러스터로 전송할 수 있습니다.
+    4. **컨슈머(Consumer)**: Kafka에서 데이터를 소비하고 처리하는 역할을 하는 시스템  컨슈머는 특정 토픽에서 데이터를 읽고 처리
+    5. **파티션(Partition)**: Kafka 토픽은 하나 이상의 파티션으로 나뉘어 진다.
+     각 파티션은 독립적으로 데이터를 저장하고 컨슈머에게 분배 → 데이터의 병렬 처리와 확장성을 지원
+    6. **레플리케이션(Replication)**: Kafka는 데이터의 내결함성을 보장하기 위해 파티션의 복제 기능. 각 파티션은 여러 브로커에 복제되어 장애 발생 시 데이터의 손실을 방지
+    7. **로그(Log)**: Kafka는 데이터를 로그 형식으로 저장하며, 이를 통해 데이터의 보존과 검색 용이. 로그는 시간 순서대로 데이터를 저장하므로 실시간 데이터 스트림 처리에 적합
+    </aside>
+    
+    - Actuator bus-refresh Endpoint
+        
+        : 분산 시스템의 노드를 경량 메시지 브로커(RabbitMQ/Kafaka 등)와 연결
+        
+        : 상태 및 구성에 대한 변경 사항을 연결된 노드에 Brodcast
+        
+        Spring Cloud Bus에 연결된 임의의 노드에 `HTTP POST /busrefresh` 를 호출하면 클라우드 버스에 변경사항을 알리고 연결된 노드 Update
+        
+    
+    ## RabbitMQ
+    
+    1. RabbitMQ 설치 (ver 26.2.1)
+    - Mac
+        
+        ```jsx
+        $brew update
+        $brew install rabitmq
+        $export PATH=$PATH:/usr/local/sbin //환경변수 등록
+        $rabbitmq-server OR ./rabbitmq-server // 실행
+        
+        -> 127.0.0.1:15672
+        초기 로그인
+        Username: [guest]
+        Password: [guest]
+        ```
+        
+    
+    - Window
+        
+        : RabbitMQ는 Erlang이라는 언어로 개발되었기 때문에 사용하기 위해서는 Erlang이 설치되어 있어야 한다. Mac의 경우 brew에서 rabbitmq를 설치할 때 자동적으로 Erlang을 설치하지만 Window의 경우 별도로 Erlang을 설치해야한다.
+        
+        1. Erlang 설치
+        2. RabbitMQ 설치
+        설치 후 서비스에 RabbitMQ가 추가 됨
+        3. Management Plugin 설치
+            - powershell - `rabbitmq-plugins enable rabbitmq_management`
+        4. rabbitmq-server 기동 후 → **127.0.0.1:15672**
+        
+    1. Dependencies 추가
+        - Config Server
+            
+            Actuator, AMQP
+            
+        - User-service, Gatway-Service
+            
+            AMQP
+            
+        
+    2. application.yml 수정
+        
+        Config / User / Gateway
+        
+        ```jsx
+        // 각각의 서비스를 rabbitmq 노드로 등록
+        spring:
+        	rabbitmq:
+        		host: 127.0.0.1
+        		port: 5672 // webbrowser: 15672
+        		username: guest
+        		password: guest
+        
+        // actuator_Endpoint -> busrefresh 추가
+        management:
+        	endpoints:
+        		web:
+        			exposure:
+        				include: refresh, health, beans, httptrace, **busrefresh**
+        ```
+        
+    3. spring-cloud-config 의 application.yml 값 변경 `mySecret` → `mySecret_changed_#1`
+        
+        `127.0.0.1:8000/user-service/actuator/busrefresh` → 204 No Content
+        
+        ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/45b0f826-7d8d-483f-812f-c838aa5b5092/Untitled.png)
+        
+        apigateway-service
+        
+        : user-service를 통해 busrefresh를 호출하면 다른 서비스에서도 변경됨을 확인
+        
+        ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/3a581609-28d7-4b1a-a6b5-a15ac3428cb5/Untitled.png)
+        
+        - token의 key값이 변경되었기 때문에 기존 토큰으로는 인증불가
+        - 다시 토큰을 발급받고 heath_check를 호출하면 yml파일에서 변경 한 key값 확인
+        
+        ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/a8ca8ad4-1a66-4f9e-9d84-b177a732fc65/Untitled.png)
+        
+
+# 암호화 처리
+
+각각의 서비스에서 관리하던 application.yml파일의 database , RabbitMQ 등의 연결정보를 config-server로 이동하고 값을 노출하지 않기 위해 암호화 하여 저장
+
+Encryption types
+
+- 단방향
+- 양방향 - 대칭/비대칭
+
+JDK keytool
+
+> JDK에서 제공되는 기능으로써 디지털 인증서, 키페어 및 보안 자격 증명을 관리하는데 사용
+> 
+
+- 대칭키 암호화 사용
+    - config-service/bootstrap.yml → key값 지정 후 POST Body에 암호화 할 값 전달
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/9422592a-cf67-43bd-9059-52f86ffc1e93/Untitled.png)
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/b984d720-b1cd-4256-9d73-85e89dc13884/Untitled.png)
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/86f73bac-0359-4eed-a833-d23145ef3bea/Untitled.png)
+    
+    1. user-service/application.yml의 datasource를 spring-cloud-confg(git)으로 이동 및 주석
+    2. user-service/bootstrap.yml의 name을 user-service로 변경
+    3. datasource의 `password: 1234`를 `POST 127.0.0.1/8888/encrypt` 를 통해 암호화 하고 값을 user-service.yml의 password에 넣는다.
+        
+        암호화 된 값이라는 뜻으로 {cipher} 키워드를 추가 (명시하지 않으면 plain_text로 인식)
+        
+        ```jsx
+        spring:
+          datasource:
+            url: jdbc:h2:tcp://localhost/~/testdb
+            driver-class-name: org.h2.Driver
+            username: sa
+            password: '{cipher}cc0f049bfdd9ab8af544b747786b9969e74e687ccfec0635f558cddc0ae77bf9'
+        
+        token:
+          expiration:
+            time: 86400000
+          secret: mySecret
+        ```
+        
+        config-service를 통해 확인해보면 decrypt 된 값이 나온다.
+        
+        ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/0827f71f-e6c0-40ef-83b6-cfa373b25760/Untitled.png)
+        
+- 비대칭키 암호화 사용
+    - jks 파일 생성
+    
+    ```jsx
+    CMD
+    
+    // jks파일 생성
+    keytool -genkeypair -alias apiEncryptionKey -keyalg RSA -dname "CN=Bg Lee, OU=API Development, O=localhost.co.kr, L=Seoul, C=KR" -keypass "test1234" -keystore apiEncryptionKey.jks -storepass "test1234"
+    
+    // 확인
+    keytool -list -keystore apiEncryptionKey.jks -v
+    
+    // 인증서 내보내기 -> .cer 파일 생성
+    keytool -export -alias apiEncryptionKey -keystore apiEncryptionKey.jks -rfc -file trustServer.cer
+    
+    // 인증서로 jks파일 생성
+    keytool -import -alias trustServer -file trustServer.cer -keystore publicKey.jks
+    ```
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/cb83ae86-c020-4034-bbc8-c89093e12aac/Untitled.png)
+    
+    - config-server에 jks파일 경로 지정
+    
+    ```jsx
+    encrypt:
+    #  key: abcdefghijklmnopqrstuvwxyz1234567890
+      key-store:
+        location: https://raw.githubusercontent.com/leebyeounggwan/spring-cloud-config/main/keystore/apiEncryptionKey.jks
+        password: test1234
+        alias: apiEncryptionKey
+    ```
+    
+    - `POST 127.0.0.1:8888/encrypt` → 암호화 후 .yml에 {cipher}~~로 값 변경(이전과 동일)
+    
+    - `user-service/default`를 호출해도 공통적으로 application.yml을 갖고 있기 때문에 여러 서비스가 공유하는 설정정보의 경우 application.yml에 작성
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/75cddf8d-10f5-4a58-b881-9da74ff7413c/Untitled.png)
+    
+
+# 마이크로서비스간 통신
+
+- Communication Types
+    - 동기
+    - 비동기(AMQP)
+
+### 1. RestTemplate
+
+<aside>
+💡 **RestTemplate** 
+: 클라이언트 측에서 서버로 HTTP 요청을 보낼 때 사용하는 Spring Framework의 클래스
+
+**@RestController 
+: 주로 서버 측에서 요청을 수신하고 응답을 생성하여 클라이언트에 반환하는 데 사용
+
+>>>>> 
+MA에서 사용하던 @RestController는 서버측에서 수신 및 응답을 위해 엔드포인트를 정의하고 요청을 처리하는 역할.
+
+RestTemplate은 마이크로서비스에서 다른 서비스로 HTTP요청을 보내기 위해 사용하는 클래스.**
+
+</aside>
+
+> **User-Service → Order-Service**
+UserService를 통해 User의 정보를 얻고 해당 정보로 Order Service를 호출하여 유저의 주문정보를 가져온다.
+> 
+
+1. UserServiceApplication에서 RestTemplate Bean 등록
+    
+    ```java
+    @Bean
+    public RestTemplate getRestTemplate() {
+    		return new RestTemplate();
+    }
+    ```
+    
+
+94~
