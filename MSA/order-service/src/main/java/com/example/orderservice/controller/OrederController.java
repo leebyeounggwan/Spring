@@ -50,9 +50,7 @@ public class OrederController {
     public ResponseEntity<List<ResponseOrder>> getOrders(@PathVariable("userId") String userId) {
         Iterable<OrderEntity> orderList = orderService.getOrdersByUserId(userId);
 
-//        ResponseOrder responseOrder = new ResponseOrder(orderList);
         List<ResponseOrder> result = new ArrayList<>();
-
         orderList.forEach(v -> {
             result.add(new ResponseOrder(v));
         });

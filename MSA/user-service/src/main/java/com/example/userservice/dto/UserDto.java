@@ -21,7 +21,7 @@ public class UserDto {
     private String userId;
     private Date createdAt;
 
-    private List<ResponseOrder> orders = new ArrayList<>();
+    private List<ResponseOrder> orders;
 
     private String encryptedPwd;
 

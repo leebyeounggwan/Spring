@@ -21,5 +21,6 @@ public class ResponseUser {
         this.email = dto.getEmail();
         this.name = dto.getName();
         this.userId = dto.getUserId();
+        this.orders = dto.getOrders();
     }
 }
