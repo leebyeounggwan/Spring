@@ -1,8 +1,9 @@
-# MSA
-
 - 전체 애플리케이션 개요
+    - ApiGateway-service : 라우팅, 로드밸런싱
+    - Discovery-service : 마이크로서비스 등록, 메타데이터 제공
+    - Config-service : 마이크로서비스 설정정보 등록
     - Catalog-Service : 상품조회
-    - User-Service : 사용자조회, 주문 확인
+    - User-Service : 사용자 조회, 주문 확인
     - Order-Service : 상품 주문, 주문 조회, 수량 업데이트
 
 # Eureka Server
@@ -616,5 +617,342 @@ UserService를 통해 User의 정보를 얻고 해당 정보로 Order Service를
     }
     ```
     
+2. user-service 수정
+    - Enviroment, RestTemplate 생성자 주입
+    - user-service.yml에 호출 할 order-service URL 정보 추가
+    - [restTemplate.exchange](http://restTemplate.exchange) 메서드로 order-service 호출
+    
+    ```jsx
+    // user-service
+    @Override
+        public UserDto getUserByUserId(String userId) {
+            UserEntity userEntity = userRepository.findByUserId(userId);
+    
+            if(userEntity == null)
+                throw new UsernameNotFoundException("User not found");
+    
+            UserDto userDto = new UserDto(userEntity);
+    				
+    
+            //List<ResponseOrder> orders = new ArrayList<>();	기존에 작성했던 임시 주문정보 주석
+    				
+    				/* Using as rest template */
+            String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+            ResponseEntity<List<ResponseOrder>> orderListResponse = 
+                    restTemplate.exchange(orderUrl, HttpMethod.GET, null,
+                                            new ParameterizedTypeReference<List<ResponseOrder>>() {
+                    });
+            
+            List<ResponseOrder> orders = orderListResponse.getBody();
+    
+            userDto.setOrders(orders);
+    
+            return userDto;
+        }
+    ```
+    
+    `restTemplate.exchange(주소, Http메서드, 파라미터, 응답값)`
+    
+    - user-service에서 요청 할 order-service의 End-Point
+    
+    ```jsx
+    // order-service
+    @GetMapping("/{userId}/orders")
+        public ResponseEntity<List<ResponseOrder>> getOrders(@PathVariable("userId") String userId) {
+            Iterable<OrderEntity> orderList = orderService.getOrdersByUserId(userId);
+    
+            List<ResponseOrder> result = new ArrayList<>();
+    
+            orderList.forEach(v -> {
+                result.add(new ResponseOrder(v));
+            });
+    
+            return ResponseEntity.status(200).body(result);
+        }
+    ```
+    
+    - Postman 확인 결과
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/4c755c66-93fb-4261-ad2a-977720e26c07/Untitled.png)
+    
+3. order-service URL을 주소체계가 아닌 Microservice name으로 호출
+    - user-service는 user-service.yml에서 order-service의 url을 불러온다.
+    order_service.url = `‘127.0.0.1:8000/~~’` 
+    → 서비스 이름, Port가 변경되어도 수정 할 필요 없도록 Eureka에 등록 된 서비스 이름으로 변경
+    
+    1) @LoadBalance 어노테이션 추가
+    
+    ```jsx
+    @Bean
+    @LoadBalanced
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
+    ```
+    
+    2) user-service.yml 수정
+    
+    ```jsx
+    order_service:
+      url: http://ORDER-SERVICE/order-service/%s/orders
+    ```
+    
 
-94~
+### 2. Feign Client
+
+> RESTful 웹 서비스와의 통신을 단순화하고 편리하게 만들어 클라이언트 코드에서 서버 간 통신을 쉽게 구현할 수 있다.
+> 
+
+1) openfeign Dependency 추가
+
+```jsx
+// openfeign
+implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+```
+
+2) OrderService Interface 생성
+
+```jsx
+@FeignClient(name = "order-service") // order-service라는 이름의 서비스를 찾아서 호출
+public interface OrderServiceClient {
+
+    @GetMapping("/order-service/{userId}/orders")
+    List<ResponseOrder> getOrders(@PathVariable String userId);
+}
+```
+
+3) Service 수정
+
+```jsx
+@Override
+    public UserDto getUserByUserId(String userId) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if(userEntity == null)
+            throw new UsernameNotFoundException("User not found");
+
+        UserDto userDto = new UserDto(userEntity);
+
+        /* Using as rest template */
+//        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+//        ResponseEntity<List<ResponseOrder>> orderListResponse =
+//                restTemplate.exchange(orderUrl, HttpMethod.GET, null,
+//                                        new ParameterizedTypeReference<List<ResponseOrder>>() {
+//                });
+//        List<ResponseOrder> orders = orderListResponse.getBody();
+
+        /* Using as Feign Client */
+        List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
+
+        userDto.setOrders(orders);
+
+        return userDto;
+    }
+```
+
+### Feign Client - Log출력 / 예외처리
+
+- Log 출력
+    
+    1) yml 로깅 레벨 설정
+    
+    ```jsx
+    logging:
+      level:
+        com.example.userservice.client: DEBUG # com.example.userservice.client 패키지의 로그를 DEBUG 레벨로 출력
+    ```
+    
+    2) Bean 등록
+    
+    ```jsx
+    @Bean
+    public Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+    ```
+    
+    - 로그 확인
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/2b56d1d2-8f4b-405c-8f53-8d3b369fff93/Untitled.png)
+    
+
+- 에러 처리
+    
+    Feign Client로 잘못된 주소 요청 시
+    
+    - 500 Error 발생
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/1914ac9f-81f2-4b64-9737-4c4360fd9c04/Untitled.png)
+    
+    - 예외처리
+    
+    ```jsx
+    List<ResponseOrder> orders = null;
+    
+    try {
+        orders = orderServiceClient.getOrders(userId);
+    } catch (FeignException ex) {
+        log.error(ex.getMessage());
+    }
+    ```
+    
+    ---
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/91909f77-5837-442c-b33f-36f0875d219c/Untitled.png)
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/5c8dd114-9014-4636-8e69-5dbfa4b41c2f/Untitled.png)
+    
+    → 잘못된 주소로 호출하지 않은 orders 정보 외에 user에 관한 정보는 정상적으로 출력
+    
+    - FeignErrorDecoder를 통한 에러 처리
+        
+        : ErrorDecoder.decode()를 사용하여 FeignClient에서 발생한 에러의 상태코드에 따라 적절한 처리 가능
+        
+        ```jsx
+        //FeignErrorDecoder 클래스 생성
+        public class FeignErrorDecoder implements ErrorDecoder {
+            @Override
+            public Exception decode(String methodKey, Response response) {
+                switch (response.status()) {
+                    case 400:
+                        break;
+                    case 404:
+                        if (methodKey.contains("getOrders")) {
+                            return new ResponseStatusException(HttpStatus.valueOf(response.status()),
+                                    "User's orders is not found");
+                        }
+                        break;
+                    default:
+                        return new Exception(response.reason());
+                }
+                return null;
+            }
+        }
+        ```
+        
+        ```jsx
+        //Bean 등록
+        @Bean
+        public FeignErrorDecoder getFeignErrorDecoder() {
+            return new FeignErrorDecoder();
+        }
+        ```
+        
+        ```jsx
+        //UserServiceImpl 메서드 수정
+        @Override
+            public UserDto getUserByUserId(String userId) {
+                UserEntity userEntity = userRepository.findByUserId(userId);
+        
+                if(userEntity == null)
+                    throw new UsernameNotFoundException("User not found");
+        
+                UserDto userDto = new UserDto(userEntity);
+        
+                /* Using as rest template */
+        //        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+        //        ResponseEntity<List<ResponseOrder>> orderListResponse =
+        //                restTemplate.exchange(orderUrl, HttpMethod.GET, null,
+        //                                        new ParameterizedTypeReference<List<ResponseOrder>>() {
+        //                });
+        //        List<ResponseOrder> orders = orderListResponse.getBody();
+        
+                /* Using as Feign Client: Feign exception handling */
+        //        List<ResponseOrder> orders = null;
+        //        try {
+        //            orders = orderServiceClient.getOrders(userId);
+        //        } catch (FeignException ex) {
+        //            log.error(ex.getMessage());
+        //        }
+        
+                /* ErrorDecoder */
+                List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
+                userDto.setOrders(orders);
+                
+                return userDto;
+            }
+        ```
+        
+        → postman 호출
+        
+        ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/3b2d469c-1be4-4aa0-9c92-b6e679309ca3/Untitled.png)
+        
+
+### 예외처리 메시지 설정정보 등록
+
+1) user-service.yml 에 에러 메시지 추가
+
+```jsx
+exception:
+    order_is_empty: User's orders is empty.
+```
+
+2) 에러 메시지 : 하드코딩 → env.getProperty로
+
+3) ErrorDecoder → env 주입, @Component로 등록
+
+4) application 파일
+
+5) 메인클래스에서 등록한 ErrorDecode bean 삭제 → env
+
+# 데이터 동기화 문제
+
+- h2-database를 in-memory로 실행 `jdbc:h2:mem:testdb`
+- Order-Service 인스턴스를 2개 기동
+    
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/d8c923b3-0c3e-41ab-b884-cbf76bc48a27/c070c07f-bd44-4b27-81c8-2fd91d349255/Untitled.png)
+    
+- postman으로 4번 order 요청을 해보면 apigateway에 의해 RR방식으로 호출되어 각각의 인스턴스에 2개의 데이터가 저장되어 있다.
+- 한명의 유저로 4번 주문내역을 생성해도 조회 시 호출된 인스턴스의 DB 데이터만 보여준다.
+
+→ 해결방법
+
+1. 각 인스턴스가 하나의 DB를 사용
+2. 각각의 DB가 메시지 큐잉서버를 통해 동기화
+3. 하나의 서버와 서비스 사이에 메시지 큐잉서버를 두어 서비스는 메시지 큐잉서버로 데이터를 전달하고 메시지 큐잉서버는 DB에 일괄적으로 넣는 역할
+
+# 데이터 동기화를 위한 Kafka 사용
+
+### Kafaka
+
+- Producer / Consumer 분리
+- 메시지를 여러 Consumer에게 전달
+- 클러스터링 구조(여러 브로커로 구성된 분산 시스템)로 안정성 확보 및 확장 용이
+
+<aside>
+💡 **Apache Kafka**                                       메시지 = text, json, xml, object 등 여러 포맷의 데이터
+**-** Scalar 언어로 된 오픈 소스 메시지 브로커(특정한 리소스에서 다른쪽의 서비스, 시스템으로 
+  메시지를 전달할 때 사용되는 서버) 프로젝트
+- 데이터를 보내는 쪽, 받는 쪽으로 구분하여 원하는 쪽으로 안전하게 메시지를 전달해주는 역할
+- RabbitMQ와 비교하여 높은 데이터 처리량, 낮은 지연 시간
+
+ex) 
+| ——- Producer ———-|                          | ————-- Consumer ———-——-|
+Oracle / MySql / App 등  →  Kafka  →  Hadoop / Search Engine / Monitoring 등        
+                                               
+End-to-End 연결방식의 아키텍처에서 프로젝트가 커질수록 서로 다른 데이터 Pipeline 연결 구조로 인해 데이터 연동의 복잡성이 증가하고 확장이 어려움
+→ 모든 시스템으로 데이터를 실시간으로 전송하여 처리할 수 있는 시스템의 필요성이 생김
+
+</aside>
+
+Kafka Broker - 실행 된 Kafka 애플리케이션 서버
+
+- 일반적으로 3대 이상의 Broker Cluster로 구성하는 것을 권장(안정성)
+n개의 Broker 중 1대는 Controller 기능 수행(각 브로커의 담당 파티션 할당, 모니터링)
+- 분산 시스템을 관리하기 위한 코디네이터를 연동해서 사용(Apache Zookeper)
+
+메시지 저장 → Kafka Broker 
+
+Broker 관리(Broker ID, Controller ID 등) → Zookeeper
+
+### 
+
+메시지는 텍스트를 비롯한 json, xml, object 등의 여러 포맷의 데이터
+
+# 장애 처리와 Microservice 분산 추적
+
+# Microservice Architecture 패턴
+
+# 애플리케이션 배포를 위한 컨테이너 가상화
+
+# 애플리케이션 배포 - Docker Container
