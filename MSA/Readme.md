@@ -340,7 +340,8 @@ public class ConfigServiceApplication {
 
 [http://127.0.0.1:8888/ecommerce/default](http://127.0.0.1:8888/ecommerce/default)
 
-![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled.png)
+![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled.png)
+
 
 - 각각의 microservice에 bootsrap.yml을 등록하여 외부의 configuration 정보 파일을 등록
 
@@ -484,18 +485,18 @@ public class ConfigServiceApplication {
         
         `127.0.0.1:8000/user-service/actuator/busrefresh` → 204 No Content
         
-        ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%201.png)
+        ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%201.png)
         
         apigateway-service
         
         : user-service를 통해 busrefresh를 호출하면 다른 서비스에서도 변경됨을 확인
         
-        ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%202.png)
+        ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%202.png)
         
         - token의 key값이 변경되었기 때문에 기존 토큰으로는 인증불가
         - 다시 토큰을 발급받고 heath_check를 호출하면 yml파일에서 변경 한 key값 확인
         
-        ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%203.png)
+        ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%203.png)
         
 
 # 암호화 처리
@@ -515,11 +516,11 @@ JDK keytool
 - 대칭키 암호화 사용
     - config-service/bootstrap.yml → key값 지정 후 POST Body에 암호화 할 값 전달
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%204.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%204.png)
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%205.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%205.png)
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%206.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%206.png)
     
     1. user-service/application.yml의 datasource를 spring-cloud-confg(git)으로 이동 및 주석
     2. user-service/bootstrap.yml의 name을 user-service로 변경
@@ -543,7 +544,7 @@ JDK keytool
         
         config-service를 통해 확인해보면 decrypt 된 값이 나온다.
         
-        ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%207.png)
+        ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%207.png)
         
 - 비대칭키 암호화 사용
     - jks 파일 생성
@@ -564,7 +565,7 @@ JDK keytool
     keytool -import -alias trustServer -file trustServer.cer -keystore publicKey.jks
     ```
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%208.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%208.png)
     
     - config-server에 jks파일 경로 지정
     
@@ -581,7 +582,7 @@ JDK keytool
     
     - `user-service/default`를 호출해도 공통적으로 application.yml을 갖고 있기 때문에 여러 서비스가 공유하는 설정정보의 경우 application.yml에 작성
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%209.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%209.png)
     
 
 # 마이크로서비스간 통신
@@ -675,7 +676,7 @@ UserService를 통해 User의 정보를 얻고 해당 정보로 Order Service를
     
     - Postman 확인 결과
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2010.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2010.png)
     
 3. order-service URL을 주소체계가 아닌 Microservice name으로 호출
     - user-service는 user-service.yml에서 order-service의 url을 불러온다.
@@ -775,7 +776,7 @@ public interface OrderServiceClient {
     
     - 로그 확인
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2011.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2011.png)
     
 
 - 에러 처리
@@ -784,7 +785,7 @@ public interface OrderServiceClient {
     
     - 500 Error 발생
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2012.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2012.png)
     
     - 예외처리
     
@@ -800,9 +801,9 @@ public interface OrderServiceClient {
     
     ---
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2013.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2013.png)
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2014.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2014.png)
     
     → 잘못된 주소로 호출하지 않은 orders 정보 외에 user에 관한 정보는 정상적으로 출력
     
@@ -877,7 +878,7 @@ public interface OrderServiceClient {
         
         → postman 호출
         
-        ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2015.png)
+        ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2015.png)
         
 
 ### 예외처리 메시지 설정정보 등록
@@ -902,7 +903,7 @@ exception:
 - h2-database를 in-memory로 실행 `jdbc:h2:mem:testdb`
 - Order-Service 인스턴스를 2개 기동
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2016.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2016.png)
     
 - postman으로 4번 order 요청을 해보면 apigateway에 의해 RR방식으로 호출되어 각각의 인스턴스에 2개의 데이터가 저장되어 있다.
 - 한명의 유저로 4번 주문내역을 생성해도 조회 시 호출된 인스턴스의 DB 데이터만 보여준다.
@@ -1008,11 +1009,11 @@ from node 0 (org.apache.kafka.clients.NetworkClient)
 
 **Producer 실행 후 메시지 전달**
 
-![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2017.png)
+![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2017.png)
 
 **Consumer에서 메시지 확인**
 
-![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2018.png)
+![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2018.png)
 
 ---
 
@@ -1023,7 +1024,7 @@ from node 0 (org.apache.kafka.clients.NetworkClient)
 - Restful API 지원
 - 다양한 Plugin 제공(File, S3, Mysql, … )
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2019.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2019.png)
     
 
       데이터 가져오는 쪽                                                   데이터 보내는 쪽
@@ -1047,16 +1048,16 @@ mysql -uroot // 접속
 mysql> create database mydb; // db 생성
 ```
 
-![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2020.png)
+![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2020.png)
 
 2) Order Service H2 → MariaDB
 
 - dependency 추가(MariaDB)
 - order-service 기동 후 h2-console 접속, 테이블 생성
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2021.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2021.png)
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2022.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2022.png)
     
 
 ---
@@ -1072,7 +1073,7 @@ mysql> create database mydb; // db 생성
     
     **`quickstart-events`** 외에 Kafka Connect가 기본으로 생성하는 3개의 토픽 추가 확인
     
-    ![Untitled](MSA%20efb9f4a51e3d4703b30a68108592db17/Untitled%2023.png)
+    ![Untitled](https://raw.githubusercontent.com/leebyeounggwan/Spring/main/MSA/Image/Untitled%2023.png)
     
 
 ### **JDBC Connector 설치 및 설정**
