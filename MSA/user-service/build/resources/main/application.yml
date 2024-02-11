@@ -39,7 +39,8 @@ greeting:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    com.example.userservice.client: DEBUG # com.example.userservice.client 패키지의 로그를 DEBUG 레벨로 출력
+
 management:
   endpoints:
     web:

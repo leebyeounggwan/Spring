@@ -42,11 +42,11 @@ public class WebSecurity {
         http.authorizeHttpRequests(authorize ->
 //                authorize.requestMatchers(new MvcRequestMatcher(introspector, "/**"))
 //                        .authenticated())
-                authorize.requestMatchers(new MvcRequestMatcher(introspector, "/**")).permitAll()
+                authorize.requestMatchers((new MvcRequestMatcher(introspector, "/**"))).permitAll()
                         .anyRequest()
                         .authenticated())
-                .addFilter(getAuthenticationFilter())
-                .httpBasic(Customizer.withDefaults());
+                        .addFilter(getAuthenticationFilter())
+                        .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
