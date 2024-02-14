@@ -1,0 +1,3 @@
+insert into catalog (id, created_at, product_id, product_name, stock, unit_price) values ('1', current_timestamp, 'CATALOG-001', 'Berlin', 100, 1500);
+insert into catalog (id, created_at, product_id, product_name, stock, unit_price) values ('2', current_timestamp, 'CATALOG-002', 'Tokyo', 110, 1000);
+insert into catalog (id, created_at, product_id, product_name, stock, unit_price) values ('3', current_timestamp, 'CATALOG-003', 'Stocholm', 120, 2000);

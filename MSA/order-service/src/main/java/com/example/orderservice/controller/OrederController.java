@@ -2,6 +2,7 @@ package com.example.orderservice.controller;
 
 import com.example.orderservice.dto.OrderDto;
 import com.example.orderservice.jpa.OrderEntity;
+import com.example.orderservice.messagequeue.KafkaProducer;
 import com.example.orderservice.service.OrderService;
 import com.example.orderservice.vo.RequestOrder;
 import com.example.orderservice.vo.ResponseOrder;
@@ -9,6 +10,7 @@ import com.netflix.discovery.converters.Auto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +23,13 @@ import java.util.List;
 public class OrederController {
     Environment env;
     OrderService orderService;
+    KafkaProducer kafkaProducer;
 
     @Autowired
-    public OrederController(Environment env, OrderService orderService) {
+    public OrederController(Environment env, OrderService orderService, KafkaProducer kafkaProducer) {
         this.env = env;
         this.orderService = orderService;
+        this.kafkaProducer = kafkaProducer;
     }
 
     @GetMapping("/health_check")
@@ -43,7 +47,10 @@ public class OrederController {
 
         ResponseOrder responseOrder = new ResponseOrder(createdOrder);
 
-        return ResponseEntity.status(201).body(responseOrder);
+        /* send this order to the kafka */
+        kafkaProducer.send("example-catalog-topic", orderDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseOrder);
     }
 
     @GetMapping("/{userId}/orders")
