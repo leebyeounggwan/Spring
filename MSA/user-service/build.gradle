@@ -59,6 +59,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
     // openfeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    // Resilience4j
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 }
 
 dependencyManagement {
