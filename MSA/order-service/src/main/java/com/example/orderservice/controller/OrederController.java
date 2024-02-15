@@ -46,6 +46,7 @@ public class OrederController {
     @PostMapping("/{userId}/orders")
     public ResponseEntity<ResponseOrder> createOrder(@PathVariable("userId") String userId,
                                                      @RequestBody RequestOrder orderDetails) {
+        log.info("Before add orders data");
         OrderDto orderDto = new OrderDto(orderDetails);
         orderDto.setUserId(userId);
 
@@ -62,18 +63,20 @@ public class OrederController {
 //        orderProducer.send("orders", orderDto);
 
         //ResponseOrder responseOrder = new ResponseOrder(orderDto);
-
+        log.info("After added orders data");
         return ResponseEntity.status(HttpStatus.CREATED).body(responseOrder);
     }
 
     @GetMapping("/{userId}/orders")
     public ResponseEntity<List<ResponseOrder>> getOrders(@PathVariable("userId") String userId) {
+        log.info("Before retrieve orders data");
         Iterable<OrderEntity> orderList = orderService.getOrdersByUserId(userId);
 
         List<ResponseOrder> result = new ArrayList<>();
         orderList.forEach(v -> {
             result.add(new ResponseOrder(v));
         });
+        log.info("After retrieved orders data");
 
         return ResponseEntity.status(200).body(result);
     }
