@@ -65,7 +65,8 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     //micrometer
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-
+    //prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 
 }
 

@@ -92,7 +92,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, http-exchanges, bus-refresh
+        include: refresh, health, beans, http-exchanges, bus-refresh, info, metrics, prometheus
 
 #token:
 #  secret: mySecret

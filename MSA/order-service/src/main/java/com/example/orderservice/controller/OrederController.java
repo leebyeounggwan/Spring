@@ -68,7 +68,7 @@ public class OrederController {
     }
 
     @GetMapping("/{userId}/orders")
-    public ResponseEntity<List<ResponseOrder>> getOrders(@PathVariable("userId") String userId) {
+    public ResponseEntity<List<ResponseOrder>> getOrders(@PathVariable("userId") String userId) throws Exception {
         log.info("Before retrieve orders data");
         Iterable<OrderEntity> orderList = orderService.getOrdersByUserId(userId);
 
@@ -76,6 +76,14 @@ public class OrederController {
         orderList.forEach(v -> {
             result.add(new ResponseOrder(v));
         });
+
+        try {
+            Thread.sleep(1000);
+            throw new Exception("장애 발생");
+        } catch (InterruptedException ex) {
+            log.warn(ex.getMessage());
+        }
+
         log.info("After retrieved orders data");
 
         return ResponseEntity.status(200).body(result);

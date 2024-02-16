@@ -23,7 +23,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    show-sql: true
+    show-sql: false
 
 eureka:
   instance:
@@ -56,5 +56,5 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, info, bus-refresh
+        include: refresh, health, beans, info, bus-refresh, metrics, prometheus
 
