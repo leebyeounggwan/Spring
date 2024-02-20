@@ -78,12 +78,12 @@ spring:
             filters:
               - RemoveRequestHeader=Cookie
               - RewritePath=/order-service/(?<segment>.*), /$\{segment}
-          - id: first-service
-            uri: lb://MY-FIRST-SERVICE # 요청(predicates)이 들어오면 이 uri로 보내라
-            predicates: # 조건(사용자가 요청한 url)
-              - Path=/first-service/**
-            filters: # 요청에 대한 처리
-              - CustomFilter
+#          - id: first-service
+#            uri: lb://MY-FIRST-SERVICE # 요청(predicates)이 들어오면 이 uri로 보내라
+#            predicates: # 조건(사용자가 요청한 url)
+#              - Path=/first-service/**
+#            filters: # 요청에 대한 처리
+#              - CustomFilter
 #          - id: second-service
 #            uri: lb://MY-SECOND-SERVICE
 #            predicates:
