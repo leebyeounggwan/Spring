@@ -70,6 +70,7 @@ spring:
             uri: lb://ORDER-SERVICE
             predicates:
               - Path=/order-service/**
+              - Method=GET, POST
           - id: order-service
             uri: lb://ORDER-SERVICE
             predicates:
