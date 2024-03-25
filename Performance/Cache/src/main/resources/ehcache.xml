@@ -6,8 +6,8 @@
             maxElementsOnDisk="0"
             eternal="false"
             statistics="false"
-            timeToIdleSeconds="60"
-            timeToLiveSeconds="60"
+            timeToIdleSeconds="10"
+            timeToLiveSeconds="10"
             overflowToDisk="false"
             diskPersistent="false"
             memoryStoreEvictionPolicy="LRU"/>
