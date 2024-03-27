@@ -27,6 +27,10 @@ public class NoticeServiceImpl implements NoticeService{
         return noticeReadMapper.findAll();
     }
 
+    /*
+     * key = "#request.requestURI + '-' + #pageNumber" : 요청 URI와 페이지 번호를 조합한 키로 캐시를 구분
+     * condition = "#pageNumber <= 5" : 페이지 번호가 5 이하일 때만 캐시를 사용
+     */
     @Override
     @Cacheable(value = "NoticeReadMapper.findByPage", key = "#request.requestURI + '-' + #pageNumber", condition = "#pageNumber <= 5")
     public List<Notice> findByPage(HttpServletRequest request, int pageNumber) {
