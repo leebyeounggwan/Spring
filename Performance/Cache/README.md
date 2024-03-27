@@ -11,7 +11,7 @@
 
 ### Cahcing 적용 전후 성능 비교 _ Ngrinder
 - *TTL : 20 sec
-- `GET /api/v1/boards/1`
+- `GET /api/notices`
 - Vuser : 1
 - Duration : 60 sec
 
@@ -39,4 +39,5 @@
   - Mean Test Time : 40 ms
   - Executed Tests : 13,652
 
+<br>
 > 캐싱 적용 후 TPS 및 응답시간, 실행횟수가 증가했으며, TTL(20초) 마다 캐시가 초기화 되는 것을 그래프에서 확인할 수 있다.
